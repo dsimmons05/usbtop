@@ -75,6 +75,10 @@ void usage(char* path)
 	std::cerr << "\tGeneral options :" << std::endl;
 	std::cerr << "\t\t--list" << std::endl;
 	std::cerr << "\t\t\tList available USB buses" << std::endl;
+	std::cerr << "\t\t--window-size secs" << std::endl;
+	std::cerr << "\t\t\tThe size of the stats window in seconds" << std::endl;
+	std::cerr << "\t\t--single-run" << std::endl;
+	std::cerr << "\t\t\tOnly do one iteration" << std::endl;
 	std::cerr << "\t\t--bus busid" << std::endl;
 	std::cerr << "\t\t\tWatch only bus busid" << std::endl;
 }
@@ -147,6 +151,8 @@ void quit_handler(int sig)
 }
 
 int show_list = 0;
+int single_run = 0;
+double window_size = 1;
 
 int main(int argc, char** argv)
 {
@@ -158,6 +164,8 @@ int main(int argc, char** argv)
 	static struct option long_opts[] = {
 		// name, has_arg, *flag, val
 		{"list", 0, &show_list, 1},
+		{"window-size", 1, 0, 'w'},
+		{"single-run", 0, &single_run, 1},
 		{"bus", 1, 0, 'b'},
 		{0, 0, 0, 0}
 	};
@@ -173,6 +181,9 @@ int main(int argc, char** argv)
 		{
 		case 'b':
 			bus_filter.reset(strdup(optarg));
+			break;
+		case 'w':
+			sscanf(optarg,"%lf",&window_size);
 			break;
 		case '?':
 			std::cerr << "Unrecognized option : " << argv[optind-1] << std::endl;
@@ -204,7 +215,7 @@ int main(int argc, char** argv)
 	const size_t nbuses = usbtop::UsbBuses::size();
 	pcap_hs.reserve(nbuses);
 
-	usbtop::Stats::init();
+	usbtop::Stats::init(window_size);
 
 	// Open pcap handles in non-blocking mode and launch a thread that will process them
 	usbtop::UsbBuses::list_pop([=,&pcap_hs](usbtop::UsbBus* bus)
@@ -233,7 +244,7 @@ int main(int argc, char** argv)
 	std::thread capturing_th(std::bind(pcap_usb_async_loop, pcap_hs));
 
 	// Current thread will output on the main console
-	usbtop::ConsoleOutput::main();
+	usbtop::ConsoleOutput::main(single_run, window_size);
 
 	// Wait for the capturing thread to finish
 	capturing_th.join();

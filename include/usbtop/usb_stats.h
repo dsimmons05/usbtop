@@ -36,7 +36,7 @@
 
 #include <boost/circular_buffer.hpp>
 
-#define LIVE_SAMPLE_COUNT 128
+#define LIVE_SAMPLE_COUNT 32768
 
 namespace usbtop {
 
@@ -55,7 +55,7 @@ public:
 	Stats(Stats const& o) = delete;
 
 public:
-	static void init();
+	static void init(double stats_window);
 	void push(double timestamp, size_t spacket);
 
 public:
@@ -78,7 +78,7 @@ private:
 	double last_inst_bw_;
 
 	// Time window for statistics in seconds
-	double stats_window_;
+	static double stats_window_;
 };
 
 class UsbStats

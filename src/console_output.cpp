@@ -40,13 +40,18 @@
 
 #include <unistd.h>
 
-void usbtop::ConsoleOutput::main()
+void usbtop::ConsoleOutput::main(int single_run, double time_window)
 {
 	std::cout.precision(2);
 	std::cout.setf(std::ios::fixed);
 	while (true) {
-		usleep(250*1000);
+		usleep(time_window * 1000000);
 		if (usbtop::ShouldStop::value()) {
+			break;
+		}
+		if (single_run) {
+			print_stats();
+			usbtop::ShouldStop::stop();
 			break;
 		}
 		clear_screen();

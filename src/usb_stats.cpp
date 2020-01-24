@@ -37,20 +37,21 @@
 //  * we need to do some real tests & math here to have accurate values.. !
 
 double usbtop::Stats::t0_ = 0;
+double usbtop::Stats::stats_window_ = 0;
 
 usbtop::Stats::Stats():
 	nbytes_(0),
 	tN_(0),
 	nsamples_(0),
 	inst_data_(LIVE_SAMPLE_COUNT),
-	last_inst_bw_(0.0),
-	stats_window_(1.0)
+	last_inst_bw_(0.0)
 {
 }
 
-void usbtop::Stats::init()
+void usbtop::Stats::init(double stats_window)
 {
 	t0_ = usbtop::tools::get_current_timestamp();
+	stats_window_ = stats_window;
 }
 
 void usbtop::Stats::push(double timestamp, size_t spacket)

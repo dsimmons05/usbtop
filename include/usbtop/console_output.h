@@ -38,7 +38,7 @@ class UsbBus;
 class ConsoleOutput
 {
 public:
-	static void main();
+	static void main(int single_run, double time_window);
 
 private:
 	static void clear_screen();
